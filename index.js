@@ -51,6 +51,26 @@ async function run() {
         res.send(result);
     })
 
+    // save a food collection to database
+
+    app.post('/food',async(req,res)=>{
+        const foodData = req.body;
+        const result = await foodsCollection.insertOne(foodData);
+        res.send(result);
+    })
+
+    //my foods get by email
+    
+    app.get('/foods/:email',async(req,res)=>{
+        const email = req.params.email;
+        const query = {'donatorEmail':email};
+        const result = await foodsCollection.find(query).toArray();
+        res.send(result);
+    })
+
+
+    
+
 
 
 
