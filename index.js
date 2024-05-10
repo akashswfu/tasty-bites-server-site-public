@@ -112,6 +112,14 @@ async function run() {
     res.send(result);
   })
 
+  // my food req get 
+  app.get('/foodsReq/:email',async(req,res)=>{
+    const email = req.params.email;
+    const query = {'loggedEmail':email};
+    const result = await foodsRequestCollection.find(query).toArray();
+    res.send(result);
+})
+
 
     
 
