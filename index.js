@@ -37,6 +37,9 @@ async function run() {
      await client.connect();
     
     const foodsCollection = client.db('foodsDB').collection('foodItem');
+    const foodsRequestCollection = client.db('foodsDB').collection('foodReq');
+
+    
 
     // get all available food data
 
@@ -44,6 +47,8 @@ async function run() {
         const result = await foodsCollection.find().toArray();
         res.send(result);
     })
+
+    //get single food
     app.get('/food/:id',async(req,res)=>{
         const id = req.params.id;
         const query = {_id:new ObjectId(id)};
@@ -51,7 +56,7 @@ async function run() {
         res.send(result);
     })
 
-    // save a food collection to database
+    // save a food collection to database by post
 
     app.post('/food',async(req,res)=>{
         const foodData = req.body;
@@ -67,6 +72,45 @@ async function run() {
         const result = await foodsCollection.find(query).toArray();
         res.send(result);
     })
+    
+    // upate single food item
+
+    
+    app.put('/food/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const foodData = req.body;
+      const options = {upsert:true};
+      const updateDoc = {
+          $set:{
+              ...foodData,
+          }
+      }
+      const result = await foodsCollection.updateOne(query,updateDoc,options);
+      res.send(result);
+  })
+
+  // delete my single foods
+  app.delete('/food/:id',async(req,res)=>{
+    const id = req.params.id;
+    console.log(id);
+    const query = {_id:new ObjectId(id)};
+    const result = await foodsCollection.deleteOne(query);
+    res.send(result);
+})
+
+// get foodRequest data
+  app.get('/foodsReq',async(req,res)=>{
+    const result = await foodsRequestCollection.find().toArray();
+    res.send(result);
+  })
+
+//save foodRequest data by post 
+  app.post('/foodReq',async(req,res)=>{
+    const foodReq = req.body;
+    const result = await foodsRequestCollection.insertOne(foodReq);
+    res.send(result);
+  })
 
 
     
