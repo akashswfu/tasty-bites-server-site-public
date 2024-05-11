@@ -44,7 +44,7 @@ async function run() {
     // get all available food data
 
     app.get('/foods',async(req,res)=>{
-        const order = req.query.quantity;
+        // const order = req.query.quantity;
         const result = await foodsCollection.find().sort({foodQuantity:-1}).toArray();
         res.send(result);
     })
@@ -128,7 +128,13 @@ app.get('/all-foods',async(req,res)=>{
 
 
   const sort = req.query.sort;
-  const result = await foodsCollection.find().sort({deadline: sort==='asc' ? 1 : -1}).skip(page*size).limit(size).toArray();
+  const search = req.query.search;
+
+  let query = {
+    foodName : {$regex: search, $options:'i'},
+  }
+
+  const result = await foodsCollection.find(query).sort({deadline: sort==='asc' ? 1 : -1}).skip(page*size).limit(size).toArray();
   // if(result.length===0){
   //   console.log("It's empty");
   // }
@@ -137,8 +143,13 @@ app.get('/all-foods',async(req,res)=>{
 
 //data count
 app.get('/foods-count',async(req,res)=>{
+  const search = req.query.search;
 
-  const count = await foodsCollection.countDocuments();
+  let query = {
+    foodName : {$regex: search, $options:'i'},
+  }
+
+  const count = await foodsCollection.countDocuments(query);
   res.send({count});
  
 })
