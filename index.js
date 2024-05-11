@@ -44,7 +44,8 @@ async function run() {
     // get all available food data
 
     app.get('/foods',async(req,res)=>{
-        const result = await foodsCollection.find().toArray();
+        const order = req.query.quantity;
+        const result = await foodsCollection.find().sort({foodQuantity:-1}).toArray();
         res.send(result);
     })
 
@@ -119,6 +120,30 @@ async function run() {
     const result = await foodsRequestCollection.find(query).toArray();
     res.send(result);
 })
+
+// total data count for pagination
+app.get('/all-foods',async(req,res)=>{
+  const size = parseInt(req.query.size);
+  const page = parseInt(req.query.page)-1;
+
+
+  const sort = req.query.sort;
+  const result = await foodsCollection.find().sort({deadline: sort==='asc' ? 1 : -1}).skip(page*size).limit(size).toArray();
+  // if(result.length===0){
+  //   console.log("It's empty");
+  // }
+  res.send(result);
+})
+
+//data count
+app.get('/foods-count',async(req,res)=>{
+
+  const count = await foodsCollection.countDocuments();
+  res.send({count});
+ 
+})
+
+
 
 
     
