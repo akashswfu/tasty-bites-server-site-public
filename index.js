@@ -120,6 +120,7 @@ async function run() {
     app.get('/foods/:email',verifyToken,async(req,res)=>{
         const email = req.params.email;
         const tokenEmail = req.user.email;
+        console.log(tokenEmail,email);
         if(tokenEmail!==email){
             return res.status(403).send({message:"Forbidden Access"})
         }
@@ -131,7 +132,7 @@ async function run() {
     // upate single food item
 
     
-    app.put('/food/:id',async(req,res)=>{
+    app.put('/food/:id', verifyToken,async(req,res)=>{
       const id = req.params.id;
       const query = {_id : new ObjectId(id)};
       const foodData = req.body;
@@ -168,7 +169,7 @@ async function run() {
   })
 
   // my food req get 
-  app.get('/foodsReq/:email',async(req,res)=>{
+  app.get('/foodsReq/:email',verifyToken,async(req,res)=>{
     const email = req.params.email;
     const query = {'loggedEmail':email};
     const result = await foodsRequestCollection.find(query).toArray();
