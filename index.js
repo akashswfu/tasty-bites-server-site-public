@@ -19,6 +19,28 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
 
+//verify jwt midlware
+
+const verifyToken = (req,res,next)=>{
+  const token = req.cookies?.token;
+  if(!token) {
+      return res.status(401).send({message:"Unauthorized Access"})
+  }
+  if(token){
+      jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,decoded)=>{
+          if(err){
+              console.log(err);
+              return res.status(403).send({message:"Forbidden Access"})
+              
+          }
+          console.log(decoded);
+          req.user= decoded;
+          next();
+      })
+  }
+  
+}
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ib4xmsu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -53,6 +75,17 @@ async function run() {
       }).send({success:true})
     })
 
+    //clear token
+
+    app.get('/logout',(req,res)=>{
+      res.clearCookie('token',{
+          httpOnly:true,
+          secure:process.env.NODE_ENV==='production',
+          sameSite:process.env.NODE_ENV === 'production' ?'none':'strict',
+          maxAge:0
+      }).send({success:true})
+  })
+
 
 
 
@@ -84,8 +117,12 @@ async function run() {
 
     //my foods get by email
     
-    app.get('/foods/:email',async(req,res)=>{
+    app.get('/foods/:email',verifyToken,async(req,res)=>{
         const email = req.params.email;
+        const tokenEmail = req.user.email;
+        if(tokenEmail!==email){
+            return res.status(403).send({message:"Forbidden Access"})
+        }
         const query = {'donatorEmail':email};
         const result = await foodsCollection.find(query).toArray();
         res.send(result);
