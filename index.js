@@ -56,7 +56,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
 
-     await client.connect();
+    //  await client.connect();
     
     const foodsCollection = client.db('foodsDB').collection('foodItem');
     const foodsRequestCollection = client.db('foodsDB').collection('foodReq');
@@ -132,7 +132,7 @@ async function run() {
     // upate single food item
 
     
-    app.put('/food/:id', verifyToken,async(req,res)=>{
+    app.put('/food/:id', async(req,res)=>{
       const id = req.params.id;
       const query = {_id : new ObjectId(id)};
       const foodData = req.body;
@@ -169,7 +169,7 @@ async function run() {
   })
 
   // my food req get 
-  app.get('/foodsReq/:email',verifyToken,async(req,res)=>{
+  app.get('/foodsReq/:email',async(req,res)=>{
     const email = req.params.email;
     const query = {'loggedEmail':email};
     const result = await foodsRequestCollection.find(query).toArray();
@@ -180,8 +180,6 @@ async function run() {
 app.get('/all-foods',async(req,res)=>{
   const size = parseInt(req.query.size);
   const page = parseInt(req.query.page)-1;
-
-
   const sort = req.query.sort;
   const search = req.query.search;
 
@@ -190,9 +188,7 @@ app.get('/all-foods',async(req,res)=>{
   }
 
   const result = await foodsCollection.find(query).sort({deadline: sort==='asc' ? 1 : -1}).skip(page*size).limit(size).toArray();
-  // if(result.length===0){
-  //   console.log("It's empty");
-  // }
+  
   res.send(result);
 })
 
@@ -220,7 +216,7 @@ app.get('/foods-count',async(req,res)=>{
 
 
    
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // await client.close();
