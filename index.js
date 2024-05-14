@@ -190,7 +190,7 @@ app.get('/all-foods',async(req,res)=>{
     foodName : {$regex: search, $options:'i'},
   }
 
-  const result = await foodsCollection.find(query).sort({deadline: sort==='dsc' ? 1 : -1}).skip(page*size).limit(size).toArray();
+  const result = await foodsCollection.find(query).sort({deadline: sort==='dsc' ? -1 : 1}).skip(page*size).limit(size).toArray();
   
   res.send(result);
 })
