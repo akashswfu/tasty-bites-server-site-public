@@ -85,12 +85,6 @@ async function run() {
           maxAge:0
       }).send({success:true})
   })
-
-
-
-
-    
-
     // get all available food data
 
     app.get('/foods',async(req,res)=>{
@@ -109,7 +103,7 @@ async function run() {
 
     // save a food collection to database by post
 
-    app.post('/food',async(req,res)=>{
+    app.post('/food',verifyToken,async(req,res)=>{
         const foodData = req.body;
         const result = await foodsCollection.insertOne(foodData);
         res.send(result);
@@ -126,6 +120,7 @@ async function run() {
         }
         const query = {'donatorEmail':email};
         const result = await foodsCollection.find(query).toArray();
+        console.log(email,tokenEmail,"from manage my food food");
         res.send(result);
     })
     
@@ -147,7 +142,7 @@ async function run() {
   })
 
   // delete my single foods
-  app.delete('/food/:id',async(req,res)=>{
+  app.delete('/food/:id',verifyToken,async(req,res)=>{
     const id = req.params.id;
     console.log(id);
     const query = {_id:new ObjectId(id)};
@@ -157,6 +152,7 @@ async function run() {
 
 // get foodRequest data
   app.get('/foodsReq',async(req,res)=>{
+    
     const result = await foodsRequestCollection.find().toArray();
     res.send(result);
   })
@@ -169,10 +165,17 @@ async function run() {
   })
 
   // my food req get 
-  app.get('/foodsReq/:email',async(req,res)=>{
+  app.get('/foodsReq/:email',verifyToken,async(req,res)=>{
     const email = req.params.email;
+   
+        const tokenEmail = req.user.email;
+        console.log(tokenEmail,email);
+        if(tokenEmail!==email){
+            return res.status(403).send({message:"Forbidden Access"})
+        }
     const query = {'loggedEmail':email};
     const result = await foodsRequestCollection.find(query).toArray();
+    console.log(email,tokenEmail,"from request food");
     res.send(result);
 })
 
@@ -187,7 +190,7 @@ app.get('/all-foods',async(req,res)=>{
     foodName : {$regex: search, $options:'i'},
   }
 
-  const result = await foodsCollection.find(query).sort({deadline: sort==='asc' ? 1 : -1}).skip(page*size).limit(size).toArray();
+  const result = await foodsCollection.find(query).sort({deadline: sort==='dsc' ? 1 : -1}).skip(page*size).limit(size).toArray();
   
   res.send(result);
 })
